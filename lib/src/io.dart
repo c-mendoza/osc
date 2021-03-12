@@ -14,6 +14,8 @@ class OSCSocket {
 
   RawDatagramSocket _socket;
 
+  Function _onData;
+
   OSCSocket({
     this.destination,
     this.destinationPort,
@@ -34,15 +36,20 @@ class OSCSocket {
   /// RawDatagramSockets don't support onDone, onError callbacks
   /// because UDP has no concept of a "connection" that can be closed.
   Future<void> listen(void Function(OSCMessage msg) onData) async {
+    print("BLAAAAA");
     _socket ??= await setupSocket();
-
+    _onData = onData;
     _socket.listen((e) {
       final datagram = _socket.receive();
       if (datagram != null) {
+      print("!!!!!!!!!!!");
+
         lastMessageAddress = datagram.address;
         lastMessagePort = datagram.port;
-        final msg = OSCMessage.fromBytes(datagram.data);
-        onData(msg);
+        var msg = OSCMessage.fromBytes(datagram.data);
+        print(msg);
+        print("HEEEEY");
+        _onData(msg);
       }
     });
   }
